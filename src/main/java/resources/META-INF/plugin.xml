@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>ProtostuffAnnotator</id>
+    <name>Protostuff Tag Annotator</name>
+    <version>1.0.0</version>
+    <vendor email="dushmanthab99@gmail.com">Dushmantha</vendor>
+    <description><![CDATA[
+        <p>Add protostuff <strong>@Tag</strong> annotations to fields.<br />See&nbsp;<a href="https://protostuff.github.io/docs/protostuff-runtime/">https://protostuff.github.io/docs/protostuff-runtime/</a></p>
+        <p>How to use</p>
+        <p> Code -> generate(CRL+Insert) -> generate Protosfuff Tags </p>
+    ]]>
+
+    </description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+    <actions>
+        <action id="com.dush" class="com.dush.psannotator.GenerateAction" text="Generate Protostuff Tags" description=" Annotate class field with protostuff '@Tag' ">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+</idea-plugin>
