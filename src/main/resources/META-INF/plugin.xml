@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>ProtostuffAnnotator</id>
     <name>Protostuff Tag Annotator</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="dushmanthab99@gmail.com">Dushmantha</vendor>
     <description><![CDATA[
         <p>Add protostuff <strong>@Tag</strong> annotations to fields.<br />See&nbsp;<a href="https://protostuff.github.io/docs/protostuff-runtime/">https://protostuff.github.io/docs/protostuff-runtime/</a></p>
