@@ -1,0 +1,13 @@
+<html>
+<body>
+Reports Protostuff <code>@Tag</code> mistakes that fail at runtime or have no effect:
+<ul>
+    <li>A field without <code>@Tag</code> in a class where other fields have one. Once any field is tagged,
+        Protostuff requires every serialized field to be tagged, including inherited ones.</li>
+    <li>Two serialized fields with the same number, including numbers used in a superclass.</li>
+    <li>A number below 1 or above 536870911 (2<sup>29</sup>&minus;1).</li>
+    <li><code>@Tag</code> on a static, transient or <code>@Exclude</code> field, which Protostuff doesn't serialize.</li>
+</ul>
+<p>Quick fixes tag the remaining fields, switch to the next free number, or remove a useless tag.</p>
+</body>
+</html>

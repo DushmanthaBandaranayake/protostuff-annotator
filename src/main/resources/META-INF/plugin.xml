@@ -3,19 +3,43 @@
     <name>Protostuff Tag Annotator</name>
     <vendor email="dushmanthab99@gmail.com">Dushmantha</vendor>
     <description><![CDATA[
-        <p>Adds Protostuff <strong>@Tag</strong> annotations to the fields of a Java class.
+        <p>Adds and checks Protostuff <strong>@Tag</strong> annotations in Java and Kotlin classes.
         See <a href="https://protostuff.github.io/docs/protostuff-runtime/">protostuff-runtime</a>.</p>
-        <p>How to use: put the caret inside a class, then <b>Code | Generate</b> (Alt+Insert, Cmd+N on macOS)
-        and choose <b>Generate Protostuff Tags</b>.</p>
         <ul>
-            <li>Adds <code>import io.protostuff.Tag</code> when Protostuff is on the classpath.</li>
-            <li>Fields that already have a <code>@Tag</code> are left alone, and their numbers are never reused.</li>
-            <li>Numbers used by superclass fields are reserved, so subclasses don't clash with them.</li>
-            <li>Static fields are skipped; transient fields are skipped unless you choose to tag them.</li>
+            <li><b>Generate:</b> <b>Code | Generate</b> (Alt+Insert, Cmd+N on macOS) &rarr; <b>Generate Protostuff Tags</b>.
+            Pick the fields and see the numbers they will get before applying.</li>
+            <li><b>Single field:</b> Alt+Enter on a field &rarr; <b>Add @Tag(n)</b>, using the next number after the highest.</li>
+            <li><b>Inspection:</b> warns about untagged fields in a tagged class, duplicate numbers (including
+            inherited ones), numbers out of range, and tags Protostuff ignores, with quick fixes.</li>
+            <li><b>Many classes:</b> right-click files, packages or folders in the Project view &rarr; <b>Protostuff</b>.</li>
+            <li><b>Renumber</b> and <b>Remove</b> tags from <b>Code | Protostuff</b> or the Project view.</li>
         </ul>
+        <p>Adds <code>import io.protostuff.Tag</code> when it's missing. Numbers used in superclasses are never reused.
+        Static and <code>@Exclude</code> fields are skipped; transient fields are optional.</p>
+        <p>Open source under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
+        Source: <a href="https://github.com/DushmanthaBandaranayake/protostuff-annotator">GitHub</a>.</p>
     ]]></description>
 
     <change-notes><![CDATA[
+        <p>1.2.0</p>
+        <ul>
+            <li>Inspection for missing, duplicate, out-of-range and ignored tags, with quick fixes.</li>
+            <li>Alt+Enter intention to tag a single field.</li>
+            <li>Generate dialog lists the fields with their planned numbers; pick which ones to tag.</li>
+            <li>Generate, renumber and remove tags across files, packages and folders from the Project view.</li>
+            <li>Renumber and Remove actions.</li>
+            <li>Remembers the dialog choices.</li>
+            <li>Kotlin support (constructor properties and body properties with a backing field), writing
+            <code>@field:Tag</code> so the tag lands on the field; warns about constructor tags without <code>field:</code>.</li>
+            <li><code>@Exclude</code> fields are skipped.</li>
+            <li>Fixed: renumbering keeps the annotation's name and layout; "next free number" ignores out-of-range values.</li>
+        </ul>
+        <p>Full history: <a href="https://github.com/DushmanthaBandaranayake/protostuff-annotator/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
+        <p>1.1.1</p>
+        <ul>
+            <li>Always writes <code>@Tag</code> and adds the import, even when Protostuff can't be resolved yet,
+            instead of falling back to <code>@io.protostuff.Tag</code>.</li>
+        </ul>
         <p>1.1.0</p>
         <ul>
             <li>Adds the <code>io.protostuff.Tag</code> import.</li>
@@ -28,13 +52,56 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends optional="true" config-file="psannotator-kotlin.xml">org.jetbrains.kotlin</depends>
+
+    <!-- Must be in the main descriptor, where the Kotlin plugin looks for it; ignored when Kotlin isn't installed.
+         Only PSI is used (no type analysis), so the plugin works in both K1 and K2 mode. -->
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK1="true" supportsK2="true"/>
+    </extensions>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.dush.psannotator.tagModelProvider"
+                        interface="com.dush.psannotator.model.TagModelProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.dush.psannotator">
+        <tagModelProvider implementation="com.dush.psannotator.java.JavaTagModelProvider" order="last"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection language="JAVA" shortName="ProtostuffTag"
+                         displayName="Protostuff @Tag problems" groupName="Protostuff"
+                         enabledByDefault="true" level="WARNING"
+                         implementationClass="com.dush.psannotator.inspection.ProtostuffTagInspection"/>
+        <intentionAction>
+            <language>JAVA</language>
+            <className>com.dush.psannotator.intention.AddTagIntention</className>
+            <category>Protostuff</category>
+        </intentionAction>
+    </extensions>
 
     <actions>
         <action id="com.dush.psannotator.GenerateProtostuffTags"
-                class="com.dush.psannotator.GenerateAction"
-                text="Generate Protostuff Tags"
+                class="com.dush.psannotator.actions.GenerateTagsAction"
+                text="Generate Protostuff Tags…"
                 description="Annotate class fields with Protostuff @Tag">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
+        <action id="com.dush.psannotator.RenumberProtostuffTags"
+                class="com.dush.psannotator.actions.RenumberTagsAction"
+                text="Renumber Protostuff Tags…"
+                description="Renumber the @Tag annotations in declaration order"/>
+        <action id="com.dush.psannotator.RemoveProtostuffTags"
+                class="com.dush.psannotator.actions.RemoveTagsAction"
+                text="Remove Protostuff Tags…"
+                description="Remove all @Tag annotations"/>
+        <group id="com.dush.psannotator.ProtostuffMenu" text="Protostuff" popup="true" compact="true">
+            <reference ref="com.dush.psannotator.GenerateProtostuffTags"/>
+            <reference ref="com.dush.psannotator.RenumberProtostuffTags"/>
+            <reference ref="com.dush.psannotator.RemoveProtostuffTags"/>
+            <add-to-group group-id="CodeMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </group>
     </actions>
 </idea-plugin>

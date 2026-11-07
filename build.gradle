@@ -1,3 +1,4 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -12,6 +13,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+// Ship the license with the plugin.
+tasks.named('jar') {
+    from(layout.projectDirectory.file('LICENSE')) { into 'META-INF' }
+    from(layout.projectDirectory.file('NOTICE')) { into 'META-INF' }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -30,6 +37,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity(providers.gradleProperty('platformVersion'))
         bundledPlugin('com.intellij.java')
+        bundledPlugin('org.jetbrains.kotlin')
         testFramework(TestFrameworkType.Platform.INSTANCE)
         testFramework(TestFrameworkType.Plugin.Java.INSTANCE)
     }
@@ -40,6 +48,14 @@ dependencies {
 intellijPlatform {
     // The plugin has no settings pages, so there is nothing to index.
     buildSearchableOptions = false
+
+    // ./gradlew verifyPlugin checks API compatibility with the oldest supported and a current IDE.
+    pluginVerification {
+        ides {
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, providers.gradleProperty('platformVersion').get())
+            ide(IntelliJPlatformType.IntellijIdea, '2026.3')
+        }
+    }
 
     pluginConfiguration {
         version = providers.gradleProperty('pluginVersion')
