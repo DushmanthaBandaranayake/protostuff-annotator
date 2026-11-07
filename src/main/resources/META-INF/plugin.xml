@@ -23,6 +23,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <p>1.2.1</p>
+        <ul>
+            <li>Plugin icon, and icons on the Protostuff menu actions.</li>
+            <li>Demo GIF in the plugin description.</li>
+            <li>Replaces the 1.2.0 Marketplace upload, which mistakenly contained the old 1.0.1 build.</li>
+        </ul>
         <p>1.2.0</p>
         <ul>
             <li>Inspection for missing, duplicate, out-of-range and ignored tags, with quick fixes.</li>

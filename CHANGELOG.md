@@ -3,6 +3,15 @@
 All notable changes to the Protostuff Tag Annotator plugin. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-11-07
+
+### Added
+- Plugin icon (light and dark), shown in the plugin manager and on the Marketplace, and a matching 16 px icon on the Protostuff menu and Generate action. Renumber and Remove use the IDE's Sort and Delete Tag icons.
+- The demo GIF is shown in the plugin description, so it appears in the IDE's plugin manager and on the Marketplace.
+
+### Fixed
+- The 1.2.0 upload to the JetBrains Marketplace contained the old 1.0.1 build, which used the removed `WriteCommandAction.Simple` API and declared no module dependencies. 1.2.1 is built from the current code.
+
 ## [1.2.0] - 2026-11-07
 
 ### Added
@@ -23,8 +32,7 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 - **Kotlin support.** Covers constructor `val`/`var` parameters and body properties with a backing field. Tags are written as `@field:Tag(n)` so they always land on the backing field. Skips computed and delegated properties, `const`, and `object`/companion members. `@Transient` is treated as transient. Works in both K1 and K2 Kotlin modes, and only loads when the Kotlin plugin is installed.
 - Fields marked `@io.protostuff.Exclude` are skipped.
 - Licensed under the Apache License 2.0: `LICENSE` and `NOTICE` files, also included in the plugin jar.
-- Plugin icon (light and dark), shown in the plugin manager and on the Marketplace, and a matching 16 px icon on the Protostuff menu and Generate action. Renumber and Remove use the IDE's Sort and Delete Tag icons.
-- Demo GIF in the README and in the plugin description (shown in the IDE's plugin manager and on the Marketplace).
+- Demo GIF in the README.
 - Plugin Verifier configuration (`./gradlew verifyPlugin`). Verified compatible with IDEA 2024.2.6 and 2026.3.
 
 ### Changed
@@ -68,7 +76,8 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 ### Added
 - First release. **Code → Generate → Generate Protostuff Tags** adds `@Tag` to every field of the class at the caret, from a chosen starting number, with options to include static and transient fields.
 
-[1.2.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/9b8ebe5...claude/wizardly-volta-vry5pt
+[1.2.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/fa7c14a...master
+[1.2.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/9b8ebe5...fa7c14a
 [1.1.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/e3220b3...9b8ebe5
 [1.1.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/7da346e...e3220b3
 [1.0.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/tree/7da346e

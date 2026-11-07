@@ -56,7 +56,7 @@ Requires JDK 21. Supports IntelliJ IDEA 2024.2 and later.
 ./gradlew buildPlugin   # plugin zip in build/distributions/
 ./gradlew test          # run the tests
 ./gradlew runIde        # start a sandbox IDE with the plugin installed
-./gradlew verifyPlugin  # check API compatibility with IDEA 2024.2 and 2026.3
+./gradlew verifyPlugin  # check API compatibility with IDEA 2024.2, 2026.2 and 2026.3
 ```
 
 The code is split into a language-neutral model (`model/`) with Java (`java/`) and Kotlin (`kotlin/`) implementations. The Kotlin part is loaded only when the Kotlin plugin is installed.
