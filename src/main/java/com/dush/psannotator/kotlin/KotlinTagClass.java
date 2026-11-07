@@ -404,4 +404,15 @@ final class KotlinTagClass implements TagClass
 				.createFileFromText( "_Dummy_.kt", KotlinFileType.INSTANCE, annotationText + " val x = 1\n" );
 		return PsiTreeUtil.findChildOfType( dummy, KtAnnotationEntry.class );
 	}
+
+	/** Models are recreated on every {@code getFields()} call, so identity is the underlying declaration. */
+	@Override public boolean equals( Object o )
+	{
+		return o instanceof KotlinTagClass other && ktClass.equals( other.ktClass );
+	}
+
+	@Override public int hashCode()
+	{
+		return ktClass.hashCode();
+	}
 }

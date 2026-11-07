@@ -162,4 +162,15 @@ final class KotlinTagField implements TagField
 			return null;
 		}
 	}
+
+	/** Models are recreated on every {@code getFields()} call, so identity is the underlying declaration. */
+	@Override public boolean equals( Object o )
+	{
+		return o instanceof KotlinTagField other && declaration.equals( other.declaration );
+	}
+
+	@Override public int hashCode()
+	{
+		return declaration.hashCode();
+	}
 }

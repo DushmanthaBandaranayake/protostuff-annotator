@@ -144,6 +144,26 @@ public final class GenerateDialog extends DialogWrapper
 		return selected;
 	}
 
+	/** Planned number per field name, as shown in the Tag column. */
+	public @NotNull Map<String, Integer> plannedTagsByName()
+	{
+		Map<String, Integer> result = new java.util.LinkedHashMap<>();
+		for ( TagField field : fields )
+		{
+			Integer value = plan.get( field );
+			if ( value != null )
+			{
+				result.put( field.getName(), value );
+			}
+		}
+		return result;
+	}
+
+	public @NotNull String tagColumnText( int row )
+	{
+		return (String) tableModel.getValueAt( row, 3 );
+	}
+
 	private void applyTransientChoice()
 	{
 		for ( int i = 0; i < fields.size(); i++ )

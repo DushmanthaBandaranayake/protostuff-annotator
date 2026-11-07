@@ -110,4 +110,15 @@ final class JavaTagField implements TagField
 		}
 		return null;
 	}
+
+	/** Models are recreated on every {@code getFields()} call, so identity is the underlying declaration. */
+	@Override public boolean equals( Object o )
+	{
+		return o instanceof JavaTagField other && field.equals( other.field );
+	}
+
+	@Override public int hashCode()
+	{
+		return field.hashCode();
+	}
 }

@@ -247,4 +247,14 @@ final class JavaTagClass implements TagClass
 		return found[0];
 	}
 
+	/** Models are recreated on every {@code getFields()} call, so identity is the underlying declaration. */
+	@Override public boolean equals( Object o )
+	{
+		return o instanceof JavaTagClass other && psiClass.equals( other.psiClass );
+	}
+
+	@Override public int hashCode()
+	{
+		return psiClass.hashCode();
+	}
 }

@@ -22,6 +22,10 @@ public class GenerateDialogTest extends TagTestCase
 			assertEquals( 5, dialog.getStart() );
 			assertFalse( dialog.isIncludeTransient() );
 			assertEquals( Set.of( "b" ), names( dialog.getSelected() ) );
+			// The Tag column shows the planned number for each row (b is row 0, t is row 1).
+			assertEquals( java.util.Map.of( "b", 5 ), dialog.plannedTagsByName() );
+			assertEquals( "5", dialog.tagColumnText( 0 ) );
+			assertEquals( "", dialog.tagColumnText( 1 ) );
 		}
 		finally
 		{
@@ -40,6 +44,7 @@ public class GenerateDialogTest extends TagTestCase
 			{
 				assertEquals( 1, dialog.getStart() );
 				assertEquals( Set.of( "b", "t" ), names( dialog.getSelected() ) );
+				assertEquals( java.util.Map.of( "b", 1, "t", 2 ), dialog.plannedTagsByName() );
 			}
 			finally
 			{
