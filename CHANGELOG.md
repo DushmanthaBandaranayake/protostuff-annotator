@@ -23,7 +23,7 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 - **Kotlin support.** Covers constructor `val`/`var` parameters and body properties with a backing field. Tags are written as `@field:Tag(n)` so they always land on the backing field. Skips computed and delegated properties, `const`, and `object`/companion members. `@Transient` is treated as transient. Works in both K1 and K2 Kotlin modes, and only loads when the Kotlin plugin is installed.
 - Fields marked `@io.protostuff.Exclude` are skipped.
 - Licensed under the Apache License 2.0: `LICENSE` and `NOTICE` files, also included in the plugin jar.
-- Demo GIF in the README.
+- Demo GIF in the README and in the plugin description (shown in the IDE's plugin manager and on the Marketplace).
 - Plugin Verifier configuration (`./gradlew verifyPlugin`). Verified compatible with IDEA 2024.2.6 and 2026.3.
 
 ### Changed

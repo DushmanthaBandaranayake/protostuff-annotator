@@ -5,6 +5,8 @@
     <description><![CDATA[
         <p>Adds and checks Protostuff <strong>@Tag</strong> annotations in Java and Kotlin classes.
         See <a href="https://protostuff.github.io/docs/protostuff-runtime/">protostuff-runtime</a>.</p>
+        <p><img src="https://raw.githubusercontent.com/DushmanthaBandaranayake/protostuff-annotator/master/docs/images/demo.gif"
+                width="640" alt="Demo: generate tags with a field preview, fix inspection warnings with Alt+Enter, and tag a whole package"/></p>
         <ul>
             <li><b>Generate:</b> <b>Code | Generate</b> (Alt+Insert, Cmd+N on macOS) &rarr; <b>Generate Protostuff Tags</b>.
             Pick the fields and see the numbers they will get before applying.</li>
