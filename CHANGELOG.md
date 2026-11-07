@@ -9,9 +9,6 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 - Plugin icon (light and dark), shown in the plugin manager and on the Marketplace, and a matching 16 px icon on the Protostuff menu and Generate action. Renumber and Remove use the IDE's Sort and Delete Tag icons.
 - The demo GIF is shown in the plugin description, so it appears in the IDE's plugin manager and on the Marketplace.
 
-### Fixed
-- The 1.2.0 upload to the JetBrains Marketplace contained the old 1.0.1 build, which used the removed `WriteCommandAction.Simple` API and declared no module dependencies. 1.2.1 is built from the current code.
-
 ## [1.2.0] - 2026-11-07
 
 ### Added
