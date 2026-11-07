@@ -86,19 +86,23 @@
     <actions>
         <action id="com.dush.psannotator.GenerateProtostuffTags"
                 class="com.dush.psannotator.actions.GenerateTagsAction"
+                icon="/icons/protostuffTag.svg"
                 text="Generate Protostuff Tags…"
                 description="Annotate class fields with Protostuff @Tag">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
         <action id="com.dush.psannotator.RenumberProtostuffTags"
                 class="com.dush.psannotator.actions.RenumberTagsAction"
+                icon="AllIcons.ObjectBrowser.Sorted"
                 text="Renumber Protostuff Tags…"
                 description="Renumber the @Tag annotations in declaration order"/>
         <action id="com.dush.psannotator.RemoveProtostuffTags"
                 class="com.dush.psannotator.actions.RemoveTagsAction"
+                icon="AllIcons.Actions.DeleteTag"
                 text="Remove Protostuff Tags…"
                 description="Remove all @Tag annotations"/>
-        <group id="com.dush.psannotator.ProtostuffMenu" text="Protostuff" popup="true" compact="true">
+        <group id="com.dush.psannotator.ProtostuffMenu" text="Protostuff" popup="true" compact="true"
+               icon="/icons/protostuffTag.svg">
             <reference ref="com.dush.psannotator.GenerateProtostuffTags"/>
             <reference ref="com.dush.psannotator.RenumberProtostuffTags"/>
             <reference ref="com.dush.psannotator.RemoveProtostuffTags"/>

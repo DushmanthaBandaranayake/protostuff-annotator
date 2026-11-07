@@ -1,4 +1,4 @@
-# Protostuff `@Tag` annotator
+# <img src="src/main/resources/META-INF/pluginIcon.svg" width="40" height="40" align="top" alt=""> Protostuff `@Tag` annotator
 IntelliJ IDEA plugin that adds and checks [Protostuff](https://protostuff.github.io/docs/protostuff-runtime/) `@Tag` annotations in Java and Kotlin classes.
 
 ![Demo: generating tags with a field preview, fixing inspection warnings with Alt+Enter, and tagging a whole package from the Project view](docs/images/demo.gif)
