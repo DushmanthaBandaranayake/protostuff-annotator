@@ -1,102 +1,80 @@
 package com.dush.psannotator;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiAnnotation;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiModifierList;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.util.PsiTreeUtil;
-
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
+ * Code | Generate action that adds Protostuff {@code @Tag} annotations to the fields of the class at the caret.
+ *
  * @author dushmantha
  * Date 2018/1/16
  */
 public class GenerateAction extends AnAction
 {
-
-	@Override public void actionPerformed( AnActionEvent e )
+	@Override public void actionPerformed( @NotNull AnActionEvent e )
 	{
 		PsiClass psiClass = getPsiClassFromContext( e );
-
-		if ( psiClass != null )
-		{
-			GenerateDialog dialog = new GenerateDialog( psiClass );
-			dialog.show();
-			if ( dialog.isOK() )
-			{
-				generateTags( psiClass, dialog.getFields(), dialog.getStartingValue(), dialog.isStaticFieldsEnabled(), dialog.isTransientFieldsEnabled() );
-			}
-		}
-
-	}
-
-	private void generateTags( PsiClass psiClass, List<PsiField> fields, int startTagNum, boolean staticFieldsEnabled, boolean transientFieldsEnabled )
-	{
-		if ( startTagNum < 0 || psiClass == null )
+		if ( psiClass == null )
 		{
 			return;
 		}
-		new WriteCommandAction.Simple( psiClass.getContainingFile().getProject(), psiClass.getContainingFile() )
+
+		GenerateDialog dialog = new GenerateDialog( psiClass );
+		if ( !dialog.showAndGet() )
 		{
-			@Override protected void run()
-			{
+			return;
+		}
 
-				PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory( getProject() );
-				int index = startTagNum;
-				for ( PsiField field : fields )
-				{
-					PsiModifierList modifierList = field.getModifierList();
-					if ( field.hasModifierProperty( PsiModifier.STATIC ) && !staticFieldsEnabled )
-					{
+		boolean includeTransient = dialog.isTransientFieldsEnabled();
+		if ( !TagGenerator.hasTaggableFields( psiClass, includeTransient ) )
+		{
+			Messages.showInfoMessage( psiClass.getProject(), "Every field in " + psiClass.getName()
+					+ " that can be tagged already has a @Tag.", "Generate Protostuff Tags" );
+			return;
+		}
 
-						continue;
-					}
-					if ( field.hasModifierProperty( PsiModifier.TRANSIENT ) && !transientFieldsEnabled )
-					{
-						continue;
-					}
-					if ( field.getContainingClass() != null && !( field.getContainingClass().equals( psiClass ) ) )
-					{
-						index++;
-						continue;
-					}
-					PsiAnnotation annotationFromText = elementFactory.createAnnotationFromText( "@Tag(" + index++ + ")", psiClass );
-					field.addBefore( annotationFromText, modifierList );
-				}
-
-			}
-		}.execute();
+		WriteCommandAction.writeCommandAction( psiClass.getProject(), psiClass.getContainingFile() )
+				.withName( "Generate Protostuff Tags" )
+				.run( () -> TagGenerator.generate( psiClass, dialog.getStartingValue(), includeTransient ) );
 	}
 
-	@Override public void update( AnActionEvent e )
+	@Override public void update( @NotNull AnActionEvent e )
 	{
-		PsiClass psiClass = getPsiClassFromContext( e );
-		e.getPresentation().setEnabled( psiClass != null );
+		e.getPresentation().setEnabledAndVisible( getPsiClassFromContext( e ) != null );
 	}
 
-	private PsiClass getPsiClassFromContext( AnActionEvent e )
+	@Override public @NotNull ActionUpdateThread getActionUpdateThread()
 	{
-		PsiFile psiFile = e.getData( LangDataKeys.PSI_FILE );
-		Editor editor = e.getData( PlatformDataKeys.EDITOR );
+		return ActionUpdateThread.BGT;
+	}
 
-		if ( psiFile == null || editor == null )
+	@Nullable
+	private static PsiClass getPsiClassFromContext( AnActionEvent e )
+	{
+		PsiFile psiFile = e.getData( CommonDataKeys.PSI_FILE );
+		Editor editor = e.getData( CommonDataKeys.EDITOR );
+		if ( !( psiFile instanceof PsiJavaFile ) || editor == null )
 		{
 			return null;
 		}
-		int offset = editor.getCaretModel().getOffset();
-		PsiElement elementAt = psiFile.findElementAt( offset );
-		return PsiTreeUtil.getParentOfType( elementAt, PsiClass.class );
+		PsiElement elementAt = psiFile.findElementAt( editor.getCaretModel().getOffset() );
+		PsiClass psiClass = PsiTreeUtil.getParentOfType( elementAt, PsiClass.class );
+		if ( psiClass == null || psiClass.isInterface() || psiClass.isAnnotationType() )
+		{
+			return null;
+		}
+		return psiClass;
 	}
 }

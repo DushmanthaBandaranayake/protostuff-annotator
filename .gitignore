@@ -1,7 +1,12 @@
 *.class
 build/
-.gradle
+.gradle/
+.intellijPlatform/
+.idea/
+*.iml
+out/
 
 *.jar
 *.aar
 *.war
+!gradle/wrapper/gradle-wrapper.jar
