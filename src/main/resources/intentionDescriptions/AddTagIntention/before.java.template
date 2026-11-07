@@ -1,0 +1,7 @@
+import io.protostuff.Tag;
+
+class Person {
+    @Tag(1)
+    String name;
+    <spot>int age;</spot>
+}
