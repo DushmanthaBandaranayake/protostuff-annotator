@@ -31,6 +31,26 @@ public final class TagOperations
 		return generate( target, TagPlanner.nextAfterMax( target ), false, null );
 	}
 
+	/**
+	 * Tags the untagged serialized fields of every writable class in the hierarchy, superclasses first. Numbers
+	 * continue after the highest tag seen from {@code target}, because a superclass can't see its subclass's tags and
+	 * would otherwise collide with them. Read-only (library) superclasses are left alone.
+	 *
+	 * @return the number of fields annotated
+	 */
+	public static int tagRemainingInHierarchy( @NotNull TagClass target )
+	{
+		int total = 0;
+		for ( TagClass cls : TagPlanner.hierarchyTopDown( target ) )
+		{
+			if ( cls.isWritable() || cls.sameAs( target ) )
+			{
+				total += generate( cls, TagPlanner.nextAfterMax( target ), false, null );
+			}
+		}
+		return total;
+	}
+
 	/** @return the number of tags changed */
 	public static int renumber( @NotNull TagClass target, int start )
 	{

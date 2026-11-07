@@ -63,6 +63,23 @@ public class JavaInspectionTest extends TagTestCase
 		check( "import io.protostuff.Tag;\nclass A { @Tag(3) int a; @Tag(4)\nint b; @Tag(5)\nint c; }" );
 	}
 
+	public void testTagInheritedFieldsFix()
+	{
+		myFixture.addFileToProject( "Base.java", "class Base { int x; }" );
+		myFixture.configureByText( "A.java", "import io.protostuff.Tag;\nclass <caret>A extends Base { @Tag(1) int a; }" );
+		myFixture.launchAction( myFixture.findSingleIntention( "Tag the remaining fields here and in superclasses" ) );
+		check( "import io.protostuff.Tag;\nclass A extends Base { @Tag(1) int a; }" );
+		assertEquals( "import io.protostuff.Tag;\n\nclass Base { @Tag(2)\nint x; }",
+				myFixture.findClass( "Base" ).getContainingFile().getText() );
+	}
+
+	public void testNextFreeIgnoresOutOfRangeValue()
+	{
+		myFixture.configureByText( "A.java", "import io.protostuff.Tag;\nclass A { @Tag(1) int a; @Tag(<caret>999999999) int b; }" );
+		myFixture.launchAction( myFixture.findSingleIntention( "Use the next free tag number" ) );
+		check( "import io.protostuff.Tag;\nclass A { @Tag(1) int a; @Tag(2) int b; }" );
+	}
+
 	public void testNextFreeNumberFix()
 	{
 		myFixture.configureByText( "A.java", "import io.protostuff.Tag;\nclass A { @Tag(1) int a; @Tag(<caret>1) int b; }" );

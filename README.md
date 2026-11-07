@@ -43,6 +43,9 @@ Works on constructor `val`/`var` parameters and body properties that have a back
 --
 ![Screenshot](https://github.com/DushmanthaBandaranayake/protostuff-annotator/blob/master/docs/images/screen_shot_4.png)
 
+## Changes
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+
 ## Building
 Requires JDK 21. Supports IntelliJ IDEA 2024.2 and later.
 

@@ -81,15 +81,34 @@ public final class TagPlanner
 		return used;
 	}
 
-	/** One more than the largest tag in the hierarchy, or 1 if there are none. Never fills gaps. */
+	/**
+	 * One more than the largest valid tag in the hierarchy, or 1 if there are none. Never fills gaps. Out-of-range
+	 * values are ignored, so fixing {@code @Tag(999999999)} doesn't push the next number to the limit.
+	 */
 	public static int nextAfterMax( @NotNull TagClass target )
 	{
+		Set<Integer> used = usedTags( hierarchyTopDown( target ) );
 		int max = 0;
-		for ( int value : usedTags( hierarchyTopDown( target ) ) )
+		for ( int value : used )
 		{
-			max = Math.max( max, value );
+			if ( TagNames.isValidTag( value ) )
+			{
+				max = Math.max( max, value );
+			}
 		}
-		return Math.min( max + 1, TagNames.MAX_TAG );
+		if ( max < TagNames.MAX_TAG )
+		{
+			return max + 1;
+		}
+		// Highest number taken: fall back to the lowest free one.
+		for ( int value = 1; value <= TagNames.MAX_TAG; value++ )
+		{
+			if ( !used.contains( value ) )
+			{
+				return value;
+			}
+		}
+		throw new IllegalStateException( "Ran out of tag numbers (max " + TagNames.MAX_TAG + ")" );
 	}
 
 	/**

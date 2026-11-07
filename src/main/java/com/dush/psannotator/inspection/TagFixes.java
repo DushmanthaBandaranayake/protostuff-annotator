@@ -5,6 +5,7 @@ import com.dush.psannotator.model.TagField;
 import com.dush.psannotator.model.TagModels;
 import com.dush.psannotator.model.TagOperations;
 import com.dush.psannotator.model.TagPlanner;
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
@@ -31,6 +32,30 @@ final class TagFixes
 			if ( cls != null )
 			{
 				TagOperations.tagRemaining( cls );
+			}
+		}
+	}
+
+	/** Also edits superclasses, which may be in other files, so it has no preview. */
+	static final class TagInheritedFieldsFix implements LocalQuickFix
+	{
+		@Override public @NotNull String getFamilyName()
+		{
+			return "Tag the remaining fields here and in superclasses";
+		}
+
+		@Override public @NotNull IntentionPreviewInfo generatePreview( @NotNull Project project,
+				@NotNull ProblemDescriptor previewDescriptor )
+		{
+			return IntentionPreviewInfo.EMPTY;
+		}
+
+		@Override public void applyFix( @NotNull Project project, @NotNull ProblemDescriptor descriptor )
+		{
+			TagClass cls = TagModels.enclosingClass( descriptor.getPsiElement() );
+			if ( cls != null )
+			{
+				TagOperations.tagRemainingInHierarchy( cls );
 			}
 		}
 	}
