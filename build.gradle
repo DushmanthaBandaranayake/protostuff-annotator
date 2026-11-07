@@ -49,10 +49,11 @@ intellijPlatform {
     // The plugin has no settings pages, so there is nothing to index.
     buildSearchableOptions = false
 
-    // ./gradlew verifyPlugin checks API compatibility with the oldest supported and a current IDE.
+    // ./gradlew verifyPlugin checks API compatibility with the oldest supported and current IDEs.
     pluginVerification {
         ides {
             ide(IntelliJPlatformType.IntellijIdeaCommunity, providers.gradleProperty('platformVersion').get())
+            ide(IntelliJPlatformType.IntellijIdea, '2026.2.2') // the version the Marketplace reported on
             ide(IntelliJPlatformType.IntellijIdea, '2026.3')
         }
     }
