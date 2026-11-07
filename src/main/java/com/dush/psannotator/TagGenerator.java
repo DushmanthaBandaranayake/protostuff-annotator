@@ -6,10 +6,18 @@ import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiImportList;
+import com.intellij.psi.PsiImportStatement;
+import com.intellij.psi.PsiImportStatementBase;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ide.highlighter.JavaFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +40,9 @@ import java.util.Set;
  *     <li>static fields are always skipped (Protostuff never serializes them), transient fields are skipped unless
  *     {@code includeTransient} is set.</li>
  * </ul>
+ * Annotations are written as {@code @Tag(n)} and {@code import io.protostuff.Tag;} is added when it is missing, even
+ * if Protostuff can't be resolved yet. The fully qualified name is only used when {@code Tag} already means a
+ * different class in that file.
  * Must be called inside a write command.
  *
  * @author dushmantha
@@ -39,6 +50,8 @@ import java.util.Set;
 public final class TagGenerator
 {
 	public static final String TAG_FQN = "io.protostuff.Tag";
+	private static final String TAG_PACKAGE = "io.protostuff";
+	private static final String TAG_SHORT_NAME = "Tag";
 	/** Largest field number allowed by the protobuf wire format, which Protostuff uses. */
 	public static final int MAX_TAG = (1 << 29) - 1;
 
@@ -72,7 +85,8 @@ public final class TagGenerator
 		}
 
 		PsiElementFactory factory = JavaPsiFacade.getElementFactory( psiClass.getProject() );
-		JavaCodeStyleManager codeStyle = JavaCodeStyleManager.getInstance( psiClass.getProject() );
+		boolean useShortName = canUseShortName( psiClass );
+		boolean importChecked = false;
 
 		int next = startTag;
 		int annotated = 0;
@@ -98,7 +112,12 @@ public final class TagGenerator
 
 				if ( isTarget )
 				{
-					addTag( field, tag, factory, codeStyle );
+					if ( useShortName && !importChecked )
+					{
+						addImportIfMissing( psiClass );
+						importChecked = true;
+					}
+					addTag( field, tag, useShortName ? TAG_SHORT_NAME : TAG_FQN, factory );
 					annotated++;
 				}
 			}
@@ -130,18 +149,84 @@ public final class TagGenerator
 		return includeTransient || !field.hasModifierProperty( PsiModifier.TRANSIENT );
 	}
 
-	private static void addTag( PsiField field, int tag, PsiElementFactory factory, JavaCodeStyleManager codeStyle )
+	private static void addTag( PsiField field, int tag, String annotationName, PsiElementFactory factory )
 	{
 		PsiModifierList modifierList = field.getModifierList();
 		if ( modifierList == null )
 		{
 			return;
 		}
-		PsiAnnotation annotation = factory.createAnnotationFromText( "@" + TAG_FQN + "(" + tag + ")", field );
-		PsiAnnotation added = (PsiAnnotation) modifierList.addAfter( annotation, null );
-		// Adds "import io.protostuff.Tag;" when Protostuff is on the classpath and nothing conflicts;
-		// otherwise the fully qualified name is kept so the code still refers to the right annotation.
-		codeStyle.shortenClassReferences( added );
+		PsiAnnotation annotation = factory.createAnnotationFromText( "@" + annotationName + "(" + tag + ")", field );
+		modifierList.addAfter( annotation, null );
+	}
+
+	/**
+	 * {@code @Tag} can be written unqualified unless the simple name {@code Tag} already refers to some other class
+	 * in this file: a single-type import of another {@code Tag}, a class named {@code Tag} in the same package, or a
+	 * nested/enclosing class named {@code Tag}.
+	 */
+	private static boolean canUseShortName( PsiClass psiClass )
+	{
+		if ( !( psiClass.getContainingFile() instanceof PsiJavaFile ) )
+		{
+			return false;
+		}
+		PsiJavaFile file = (PsiJavaFile) psiClass.getContainingFile();
+		PsiImportList importList = file.getImportList();
+		if ( importList != null )
+		{
+			for ( PsiImportStatementBase statement : importList.getAllImportStatements() )
+			{
+				PsiJavaCodeReferenceElement ref = statement.getImportReference();
+				if ( ref == null || statement.isOnDemand() )
+				{
+					continue;
+				}
+				if ( TAG_SHORT_NAME.equals( ref.getReferenceName() ) )
+				{
+					// An existing single-type import decides what "Tag" means.
+					return TAG_FQN.equals( ref.getQualifiedName() );
+				}
+			}
+		}
+		PsiClass resolved = JavaPsiFacade.getInstance( psiClass.getProject() ).getResolveHelper()
+				.resolveReferencedClass( TAG_SHORT_NAME, psiClass );
+		return resolved == null || TAG_FQN.equals( resolved.getQualifiedName() );
+	}
+
+	/** Adds {@code import io.protostuff.Tag;} unless it, or {@code import io.protostuff.*;}, is already there. */
+	private static void addImportIfMissing( PsiClass psiClass )
+	{
+		PsiJavaFile file = (PsiJavaFile) psiClass.getContainingFile();
+		if ( TAG_PACKAGE.equals( file.getPackageName() ) )
+		{
+			return;
+		}
+		PsiImportList importList = file.getImportList();
+		if ( importList == null || importList.findSingleClassImportStatement( TAG_FQN ) != null
+				|| importList.findOnDemandImportStatement( TAG_PACKAGE ) != null )
+		{
+			return;
+		}
+
+		PsiClass tagClass = JavaPsiFacade.getInstance( psiClass.getProject() )
+				.findClass( TAG_FQN, GlobalSearchScope.allScope( psiClass.getProject() ) );
+		if ( tagClass != null )
+		{
+			// Places the import according to the project's import layout.
+			JavaCodeStyleManager.getInstance( psiClass.getProject() ).addImport( file, tagClass );
+			return;
+		}
+
+		// Protostuff isn't resolvable yet (not on the classpath, or still indexing): add the import as text.
+		PsiFile dummy = PsiFileFactory.getInstance( psiClass.getProject() )
+				.createFileFromText( "_Dummy_.java", JavaFileType.INSTANCE, "import " + TAG_FQN + ";" );
+		PsiImportList dummyImports = ( (PsiJavaFile) dummy ).getImportList();
+		PsiImportStatement statement = dummyImports != null ? dummyImports.findSingleClassImportStatement( TAG_FQN ) : null;
+		if ( statement != null )
+		{
+			importList.add( statement );
+		}
 	}
 
 	/**

@@ -71,11 +71,56 @@ public class TagGeneratorTest extends LightJavaCodeInsightFixtureTestCase
 				+ "int b; }" );
 	}
 
-	public void testUnresolvedTagWithoutProtostuffOnClasspath()
+	public void testAddsImportWhenProtostuffIsNotOnClasspath()
+	{
+		run( "package p;\n\nclass A { int a; int b; }", 1, false );
+		myFixture.checkResult( "package p;\n\n"
+				+ "import io.protostuff.Tag;\n\n"
+				+ "class A { @Tag(1)\n"
+				+ "int a; @Tag(2)\n"
+				+ "int b; }" );
+	}
+
+	public void testUnresolvedExistingTagIsKeptAndImportAdded()
 	{
 		run( "class A { @Tag(1) int a; int b; }", 1, false );
-		myFixture.checkResult( "class A { @Tag(1) int a; @io.protostuff.Tag(2)\n"
+		myFixture.checkResult( "import io.protostuff.Tag;\n\n"
+				+ "class A { @Tag(1) int a; @Tag(2)\n"
 				+ "int b; }" );
+	}
+
+	public void testKeepsExistingWildcardImport()
+	{
+		myFixture.addClass( TAG_SOURCE );
+		run( "import io.protostuff.*;\nclass A { int a; }", 1, false );
+		myFixture.checkResult( "import io.protostuff.*;\n"
+				+ "class A { @Tag(1)\n"
+				+ "int a; }" );
+	}
+
+	public void testUsesQualifiedNameWhenAnotherTagIsImported()
+	{
+		myFixture.addClass( TAG_SOURCE );
+		myFixture.addClass( "package other;\npublic @interface Tag { }" );
+		run( "import other.Tag;\nclass A { int a; }", 1, false );
+		myFixture.checkResult( "import other.Tag;\n"
+				+ "class A { @io.protostuff.Tag(1)\n"
+				+ "int a; }" );
+	}
+
+	public void testUsesQualifiedNameWhenSamePackageHasTag()
+	{
+		myFixture.addClass( "package p;\npublic class Tag { }" );
+		run( "package p;\nclass A { int a; }", 1, false );
+		myFixture.checkResult( "package p;\n"
+				+ "class A { @io.protostuff.Tag(1)\n"
+				+ "int a; }" );
+	}
+
+	public void testNoImportWhenNothingToTag()
+	{
+		run( "class A { static int s; }", 1, false );
+		myFixture.checkResult( "class A { static int s; }" );
 	}
 
 	public void testHasTaggableFields()

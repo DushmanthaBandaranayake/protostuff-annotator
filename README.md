@@ -5,7 +5,7 @@ IntelliJ IDEA plugin that adds [Protostuff](https://protostuff.github.io/docs/pr
 Put the caret inside a class, then **Code → Generate** (Alt+Insert, Cmd+N on macOS) → **Generate Protostuff Tags**.
 Enter the starting tag number and choose whether transient fields should be tagged.
 
-- Adds `import io.protostuff.Tag;` when Protostuff is on the classpath (otherwise writes `@io.protostuff.Tag`).
+- Writes `@Tag(n)` and adds `import io.protostuff.Tag;` if it isn't already imported. The fully qualified `@io.protostuff.Tag` is used only when `Tag` already means a different class in that file.
 - Fields that already have a `@Tag` are left alone, and their numbers are never reused, so running it again after adding fields is safe.
 - Numbers used by superclass fields are reserved (untagged inherited fields reserve one number each, top-most class first), so a subclass doesn't clash with its parents.
 - Static fields are never tagged, since Protostuff doesn't serialize them. Transient fields are skipped unless you tick the checkbox.
