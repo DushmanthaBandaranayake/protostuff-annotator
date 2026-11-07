@@ -4,7 +4,8 @@ import com.dush.psannotator.model.TagClass;
 import com.dush.psannotator.model.TagModels;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
@@ -84,9 +85,9 @@ final class TagTargets
 					@Override public boolean visitFile( @NotNull VirtualFile file )
 					{
 						ProgressManager.checkCanceled();
-						if ( !ReadAction.compute( () -> index.isInSourceContent( file ) ) )
+						if ( !readAction( () -> index.isInSourceContent( file ) ) )
 						{
-							return file.isDirectory() && ReadAction.compute( () -> index.isInContent( file ) );
+							return file.isDirectory() && readAction( () -> index.isInContent( file ) );
 						}
 						if ( !file.isDirectory() && EXTENSIONS.contains( file.getExtension() ) )
 						{
@@ -99,7 +100,7 @@ final class TagTargets
 			for ( VirtualFile file : files )
 			{
 				ProgressManager.checkCanceled();
-				ReadAction.run( () -> {
+				readAction( () -> {
 					PsiFile psiFile = PsiManager.getInstance( project ).findFile( file );
 					if ( psiFile != null )
 					{
@@ -111,10 +112,16 @@ final class TagTargets
 							}
 						}
 					}
+					return null;
 				} );
 			}
 		}, "Finding Classes", true, project );
 		return finished ? result : List.of();
+	}
+
+	private static <T> T readAction( Computable<T> computation )
+	{
+		return ApplicationManager.getApplication().runReadAction( computation );
 	}
 
 	@NotNull

@@ -37,6 +37,11 @@ public interface TagClass
 
 	void removeTag( @NotNull TagField field );
 
+	/** Moves a {@link TagField#isTagOnWrongTarget() misplaced} {@code @Tag} onto the field. */
+	default void fixTagTarget( @NotNull TagField field )
+	{
+	}
+
 	/** Removes {@code import io.protostuff.Tag} if nothing in the file uses it any more. */
 	void removeUnusedImport();
 

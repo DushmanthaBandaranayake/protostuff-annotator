@@ -27,7 +27,8 @@
             <li>Generate, renumber and remove tags across files, packages and folders from the Project view.</li>
             <li>Renumber and Remove actions.</li>
             <li>Remembers the dialog choices.</li>
-            <li>Kotlin support (constructor properties and body properties with a backing field).</li>
+            <li>Kotlin support (constructor properties and body properties with a backing field), writing
+            <code>@field:Tag</code> so the tag lands on the field; warns about constructor tags without <code>field:</code>.</li>
             <li><code>@Exclude</code> fields are skipped.</li>
             <li>Fixed: renumbering keeps the annotation's name and layout; "next free number" ignores out-of-range values.</li>
         </ul>
@@ -50,6 +51,12 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="psannotator-kotlin.xml">org.jetbrains.kotlin</depends>
+
+    <!-- Must be in the main descriptor, where the Kotlin plugin looks for it; ignored when Kotlin isn't installed.
+         Only PSI is used (no type analysis), so the plugin works in both K1 and K2 mode. -->
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK1="true" supportsK2="true"/>
+    </extensions>
 
     <extensionPoints>
         <extensionPoint qualifiedName="com.dush.psannotator.tagModelProvider"

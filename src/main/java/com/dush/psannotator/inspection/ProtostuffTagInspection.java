@@ -47,6 +47,7 @@ public class ProtostuffTagInspection extends LocalInspectionTool
 			case MISSING_TAG_INHERITED -> new LocalQuickFix[] { new TagFixes.TagInheritedFieldsFix() };
 			case DUPLICATE, OUT_OF_RANGE -> new LocalQuickFix[] { new TagFixes.UseNextFreeNumberFix() };
 			case IGNORED -> new LocalQuickFix[] { new TagFixes.RemoveTagFix() };
+			case WRONG_TARGET -> new LocalQuickFix[] { new TagFixes.UseFieldTargetFix() };
 		};
 	}
 }

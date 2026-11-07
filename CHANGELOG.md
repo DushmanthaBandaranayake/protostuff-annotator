@@ -10,8 +10,9 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
   - a field without `@Tag` in a class where other fields have one (Protostuff requires every serialized field to be tagged once any is), including untagged inherited fields;
   - two serialized fields with the same number, including numbers used in a superclass;
   - numbers below 1 or above 536870911 (2²⁹−1);
-  - `@Tag` on a static, transient or `@Exclude` field, which Protostuff ignores.
-- **Quick fixes** for those problems: *Tag the remaining fields*, *Tag the remaining fields here and in superclasses*, *Use the next free tag number*, *Remove @Tag*.
+  - `@Tag` on a static, transient or `@Exclude` field, which Protostuff ignores;
+  - in Kotlin, `@Tag` on a constructor `val`/`var` without `field:`. `io.protostuff.Tag` declares no `@Target`, so Kotlin puts it on the constructor parameter, where Protostuff doesn't look.
+- **Quick fixes** for those problems: *Tag the remaining fields*, *Tag the remaining fields here and in superclasses*, *Use the next free tag number*, *Remove @Tag*, *Change to @field:Tag*.
 - **Alt+Enter intention "Add @Tag(n)"** on a single field. It uses one more than the highest number in the hierarchy and never fills gaps, since a gap is often a removed field whose number shouldn't be reused.
 - **Field chooser in the Generate dialog.** It lists the untagged fields with the number each will get, updated live as you change the start number or tick and untick fields. Unticked fields don't use up a number.
 - **Work on many classes at once.** Right-click files, packages or folders in the Project view → **Protostuff** → Generate, Renumber or Remove. Generate can continue after the highest tag in each class or start from a fixed number, and can be limited to classes that already use `@Tag`.
@@ -19,9 +20,9 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 - **Remove Protostuff Tags** removes every `@Tag` and the import once it's no longer used.
 - **Code → Protostuff** menu with Generate, Renumber and Remove.
 - **Remembered choices**: "Tag transient fields", "Only classes that already have some @Tag fields", the renumber starting number, and the Generate dialog's size.
-- **Kotlin support.** Covers constructor `val`/`var` parameters and body properties with a backing field. Skips computed and delegated properties, `const`, and `object`/companion members. `@Transient` is treated as transient. Works in both K1 and K2 Kotlin modes, and only loads when the Kotlin plugin is installed.
+- **Kotlin support.** Covers constructor `val`/`var` parameters and body properties with a backing field. Tags are written as `@field:Tag(n)` so they always land on the backing field. Skips computed and delegated properties, `const`, and `object`/companion members. `@Transient` is treated as transient. Works in both K1 and K2 Kotlin modes, and only loads when the Kotlin plugin is installed.
 - Fields marked `@io.protostuff.Exclude` are skipped.
-- Plugin Verifier configuration (`./gradlew verifyPlugin`) for IDEA 2024.2 and 2026.3.
+- Plugin Verifier configuration (`./gradlew verifyPlugin`). Verified compatible with IDEA 2024.2.6 and 2026.3.
 
 ### Changed
 - The Generate dialog's starting number defaults to one more than the highest existing tag when the class already has tags, instead of 1.
@@ -31,6 +32,8 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 ### Fixed
 - Renumbering changes only the number and keeps the annotation's name, `@field:` use-site target and layout.
 - "Use the next free tag number" ignores out-of-range values, so fixing `@Tag(999999999)` no longer jumps to the maximum.
+- The K2-mode declaration is in the main `plugin.xml`, where the Kotlin plugin looks for it. In the optional Kotlin file it was ignored, and the plugin would have been disabled in K2 mode.
+- Kotlin `@Tag(value = n)` is read correctly.
 
 ## [1.1.1] - 2026-11-07
 

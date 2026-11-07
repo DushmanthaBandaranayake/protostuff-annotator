@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.psi.KtAnnotationEntry;
+import org.jetbrains.kotlin.psi.KtAnnotationUseSiteTarget;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassBody;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
@@ -152,8 +153,10 @@ final class KotlinTagClass implements TagClass
 		{
 			name = TagNames.TAG_FQN;
 		}
+		// "field:" so the tag always lands on the backing field: Tag has no @Target, and on a constructor property
+		// Kotlin would otherwise put it on the parameter, where Protostuff doesn't look.
 		KtModifierListOwner owner = ( (KotlinTagField) field ).getKtDeclaration();
-		owner.addAnnotationEntry( createEntry( "@" + name + "(" + value + ")" ) );
+		owner.addAnnotationEntry( createEntry( "@field:" + name + "(" + value + ")" ) );
 	}
 
 	@Override public void setTag( @NotNull TagField field, int value )
@@ -165,8 +168,8 @@ final class KotlinTagClass implements TagClass
 		}
 		// Replace only the number, so the annotation keeps its name, use-site target and layout.
 		KtAnnotationEntry fresh = createEntry( "@Tag(" + value + ")" );
-		List<? extends ValueArgument> args = tag.getValueArguments();
-		KtExpression current = args.isEmpty() ? null : args.get( 0 ).getArgumentExpression();
+		ValueArgument arg = KotlinTagField.valueArgument( tag );
+		KtExpression current = arg != null ? arg.getArgumentExpression() : null;
 		KtExpression replacement = fresh.getValueArguments().get( 0 ).getArgumentExpression();
 		if ( current != null && replacement != null )
 		{
@@ -176,6 +179,21 @@ final class KotlinTagClass implements TagClass
 		{
 			tag.getValueArgumentList().replace( fresh.getValueArgumentList() );
 		}
+	}
+
+	@Override public void fixTagTarget( @NotNull TagField field )
+	{
+		KtAnnotationEntry tag = ( (KotlinTagField) field ).getTagAnnotation();
+		if ( tag == null )
+		{
+			return;
+		}
+		String text = tag.getText();
+		KtAnnotationUseSiteTarget target = tag.getUseSiteTarget();
+		String withoutTarget = target != null
+				? "@" + text.substring( text.indexOf( ':' ) + 1 )
+				: text;
+		tag.replace( createEntry( "@field:" + withoutTarget.substring( 1 ) ) );
 	}
 
 	@Override public void removeTag( @NotNull TagField field )

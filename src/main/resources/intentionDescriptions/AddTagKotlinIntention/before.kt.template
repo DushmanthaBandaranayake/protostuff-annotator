@@ -1,6 +1,6 @@
 import io.protostuff.Tag
 
 class Person(
-    @Tag(1) val name: String,
+    @field:Tag(1) val name: String,
     <spot>val age: Int</spot>
 )

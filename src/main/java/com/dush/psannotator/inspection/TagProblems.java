@@ -30,7 +30,9 @@ public final class TagProblems
 		/** Below 1 or above 2^29-1. */
 		OUT_OF_RANGE,
 		/** {@code @Tag} on a static, transient or excluded field, which Protostuff ignores. */
-		IGNORED
+		IGNORED,
+		/** Kotlin constructor property tagged without {@code @field:}: the tag goes on the parameter. */
+		WRONG_TARGET
 	}
 
 	public record Problem(Kind kind, PsiElement element, String message)
@@ -115,6 +117,13 @@ public final class TagProblems
 			problems.add( new Problem( Kind.IGNORED, tag,
 					"@Tag has no effect: '" + field.getName() + "' is " + why + ", so Protostuff doesn't serialize it" ) );
 			return;
+		}
+
+		if ( field.isTagOnWrongTarget() )
+		{
+			problems.add( new Problem( Kind.WRONG_TARGET, tag,
+					"This @Tag goes on the constructor parameter, not the field, so Protostuff doesn't see it; "
+							+ "use @field:Tag" ) );
 		}
 
 		Integer value = field.getTagValue();

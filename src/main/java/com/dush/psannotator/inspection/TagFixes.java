@@ -79,6 +79,25 @@ final class TagFixes
 		}
 	}
 
+	static final class UseFieldTargetFix implements LocalQuickFix
+	{
+		@Override public @NotNull String getFamilyName()
+		{
+			return "Change to @field:Tag";
+		}
+
+		@Override public void applyFix( @NotNull Project project, @NotNull ProblemDescriptor descriptor )
+		{
+			PsiElement element = descriptor.getPsiElement();
+			TagClass cls = TagModels.enclosingClass( element );
+			TagField field = TagModels.fieldAt( element );
+			if ( cls != null && field != null && field.isTagOnWrongTarget() )
+			{
+				cls.fixTagTarget( field );
+			}
+		}
+	}
+
 	static final class RemoveTagFix implements LocalQuickFix
 	{
 		@Override public @NotNull String getFamilyName()

@@ -4,11 +4,6 @@
         <tagModelProvider implementation="com.dush.psannotator.kotlin.KotlinTagModelProvider" order="first"/>
     </extensions>
 
-    <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <!-- Only PSI is used (no type analysis), so the plugin works in both K1 and K2 mode. -->
-        <supportsKotlinPluginMode supportsK1="true" supportsK2="true"/>
-    </extensions>
-
     <extensions defaultExtensionNs="com.intellij">
         <localInspection language="kotlin" shortName="ProtostuffTagKotlin"
                          displayName="Protostuff @Tag problems (Kotlin)" groupName="Protostuff"

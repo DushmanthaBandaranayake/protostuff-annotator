@@ -17,9 +17,10 @@ Alt+Enter on a field → **Add @Tag(n)**. It uses one more than the highest numb
 - a field without `@Tag` in a class where other fields have one, including inherited fields. Once any field is tagged, Protostuff requires every serialized field to be tagged;
 - two fields with the same number, including numbers used in a superclass;
 - numbers below 1 or above 536870911 (2²⁹−1);
-- `@Tag` on a static, transient or `@Exclude` field, which Protostuff ignores.
+- `@Tag` on a static, transient or `@Exclude` field, which Protostuff ignores;
+- in Kotlin, `@Tag` on a constructor `val`/`var` without `field:`, which ends up on the constructor parameter instead of the field.
 
-Quick fixes: **Tag the remaining fields**, **Use the next free tag number**, **Remove @Tag**.
+Quick fixes: **Tag the remaining fields** (also in superclasses), **Use the next free tag number**, **Remove @Tag**, **Change to @field:Tag**.
 
 ### Many classes at once
 Right-click files, packages or folders in the Project view → **Protostuff** → **Generate**, **Renumber** or **Remove**. Generate can continue after the highest tag in each class or start from a fixed number, and can be limited to classes that already use `@Tag`.
@@ -35,7 +36,7 @@ Right-click files, packages or folders in the Project view → **Protostuff** �
 - The dialogs remember the transient, "only tagged classes" and renumber-start choices.
 
 ### Kotlin
-Works on constructor `val`/`var` parameters and body properties that have a backing field. It skips computed properties, delegated properties (`by lazy`), `const`, and `object`/companion members. `@Transient` (`kotlin.jvm.Transient`) is treated as transient. Supports both the K1 and K2 Kotlin modes.
+Works on constructor `val`/`var` parameters and body properties that have a backing field. Tags are written as `@field:Tag(n)`: `io.protostuff.Tag` declares no `@Target`, so without `field:` Kotlin would put it on the constructor parameter, where Protostuff doesn't look. It skips computed properties, delegated properties (`by lazy`), `const`, and `object`/companion members. `@Transient` (`kotlin.jvm.Transient`) is treated as transient. Supports both the K1 and K2 Kotlin modes.
 
 ![Screenshot](https://github.com/DushmanthaBandaranayake/protostuff-annotator/blob/master/docs/images/screen_shot_2.png)
 --

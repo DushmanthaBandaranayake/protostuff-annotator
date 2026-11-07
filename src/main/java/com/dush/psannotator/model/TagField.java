@@ -31,6 +31,15 @@ public interface TagField
 	/** Where problems about this field are highlighted (normally its name). */
 	@NotNull PsiElement getHighlightElement();
 
+	/**
+	 * {@code true} if the {@code @Tag} is there but lands somewhere Protostuff can't see it, e.g. a Kotlin
+	 * constructor property annotated without {@code @field:}, where the annotation goes on the parameter.
+	 */
+	default boolean isTagOnWrongTarget()
+	{
+		return false;
+	}
+
 	default boolean hasTag()
 	{
 		return getTagAnnotation() != null;

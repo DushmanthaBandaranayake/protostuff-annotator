@@ -7,11 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.psi.KtAnnotationEntry;
 import org.jetbrains.kotlin.psi.KtCallableDeclaration;
+import org.jetbrains.kotlin.psi.KtAnnotationUseSiteTarget;
 import org.jetbrains.kotlin.psi.KtExpression;
+import org.jetbrains.kotlin.psi.KtParameter;
 import org.jetbrains.kotlin.psi.KtTypeReference;
 import org.jetbrains.kotlin.psi.ValueArgument;
-
-import java.util.List;
+import org.jetbrains.kotlin.psi.ValueArgumentName;
 
 /** A constructor {@code val}/{@code var} parameter or a body property with a backing field. */
 final class KotlinTagField implements TagField
@@ -69,13 +70,39 @@ final class KotlinTagField implements TagField
 		{
 			return null;
 		}
-		List<? extends ValueArgument> args = tag.getValueArguments();
-		if ( args.isEmpty() )
-		{
-			return null;
-		}
-		KtExpression expression = args.get( 0 ).getArgumentExpression();
+		ValueArgument arg = valueArgument( tag );
+		KtExpression expression = arg != null ? arg.getArgumentExpression() : null;
 		return expression != null ? parseIntLiteral( expression.getText() ) : null;
+	}
+
+	/** The {@code value} argument: named {@code value = n}, or the first positional one. */
+	@Nullable
+	static ValueArgument valueArgument( KtAnnotationEntry tag )
+	{
+		for ( ValueArgument arg : tag.getValueArguments() )
+		{
+			ValueArgumentName name = arg.getArgumentName();
+			if ( name == null ? !arg.isNamed() : "value".equals( name.getAsName().asString() ) )
+			{
+				return arg;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * {@code io.protostuff.Tag} declares no {@code @Target}, so on a constructor {@code val}/{@code var} without a
+	 * use-site target Kotlin applies it to the parameter (as it does with {@code @param:}).
+	 */
+	@Override public boolean isTagOnWrongTarget()
+	{
+		KtAnnotationEntry tag = getTagAnnotation();
+		if ( tag == null || !( declaration instanceof KtParameter ) )
+		{
+			return false;
+		}
+		KtAnnotationUseSiteTarget target = tag.getUseSiteTarget();
+		return target == null || "param".equals( target.getText() );
 	}
 
 	@Override public @NotNull PsiElement getDeclaration()

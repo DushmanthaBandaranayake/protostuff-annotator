@@ -7,6 +7,8 @@ Reports Protostuff <code>@Tag</code> mistakes that fail at runtime or have no ef
     <li>Two serialized fields with the same number, including numbers used in a superclass.</li>
     <li>A number below 1 or above 536870911 (2<sup>29</sup>&minus;1).</li>
     <li><code>@Tag</code> on a static, transient or <code>@Exclude</code> field, which Protostuff doesn't serialize.</li>
+    <li><code>@Tag</code> on a constructor <code>val</code>/<code>var</code> without <code>field:</code>. <code>io.protostuff.Tag</code>
+        declares no <code>@Target</code>, so Kotlin applies it to the constructor parameter, where Protostuff doesn't look.</li>
 </ul>
 <p>Quick fixes tag the remaining fields, switch to the next free number, or remove a useless tag.</p>
 </body>
