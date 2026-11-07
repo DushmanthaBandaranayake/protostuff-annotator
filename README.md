@@ -60,3 +60,8 @@ Requires JDK 21. Supports IntelliJ IDEA 2024.2 and later.
 ```
 
 The code is split into a language-neutral model (`model/`) with Java (`java/`) and Kotlin (`kotlin/`) implementations. The Kotlin part is loaded only when the Kotlin plugin is installed.
+
+## License
+Copyright 2018-2026 Dushmantha Bandaranayake.
+
+Licensed under the [Apache License, Version 2.0](LICENSE). You may use, modify and distribute this plugin, including commercially, as long as you keep the copyright and license notices and state any changes you make. It comes with no warranty. See [NOTICE](NOTICE) for attribution.

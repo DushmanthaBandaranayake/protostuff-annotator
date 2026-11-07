@@ -16,6 +16,8 @@
         </ul>
         <p>Adds <code>import io.protostuff.Tag</code> when it's missing. Numbers used in superclasses are never reused.
         Static and <code>@Exclude</code> fields are skipped; transient fields are optional.</p>
+        <p>Open source under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
+        Source: <a href="https://github.com/DushmanthaBandaranayake/protostuff-annotator">GitHub</a>.</p>
     ]]></description>
 
     <change-notes><![CDATA[
