@@ -6,7 +6,7 @@ IntelliJ IDEA plugin that generates and checks Protostuff `@Tag` annotations in 
 
 ## Commands
 
-Requires JDK 21. Built with the IntelliJ Platform Gradle Plugin 2.x against IntelliJ IDEA Community 2024.2.6 (`gradle.properties`: `platformVersion`, `pluginSinceBuild = 242`, no until-build).
+Requires JDK 21. Built with the IntelliJ Platform Gradle Plugin 2.x against IntelliJ IDEA Community 2024.2.6 (`gradle.properties`: `platformVersion`, `pluginSinceBuild = 222`, no until-build). The code is compiled to Java 17 bytecode (`options.release = 17`) because 2022.2-2024.1 run on Java 17, so don't use Java 18+ language features or APIs. 2022.1 (Java 11, no `ActionUpdateThread`) is deliberately unsupported.
 
 ```bash
 ./gradlew test                                                        # all tests
@@ -14,7 +14,7 @@ Requires JDK 21. Built with the IntelliJ Platform Gradle Plugin 2.x against Inte
 ./gradlew test --tests 'com.dush.psannotator.KotlinTagTest.testGenerateAddsImportAndTags'  # one method
 ./gradlew buildPlugin            # build/distributions/protostuff-annotator-<version>.zip (the file to upload)
 ./gradlew verifyPluginStructure  # descriptor/archive checks
-./gradlew verifyPlugin           # Plugin Verifier vs IDEA 2024.2.6, 2026.2.2, 2026.3 (downloads IDEs, ~5 min)
+./gradlew verifyPlugin           # Plugin Verifier vs IDEA 2022.2.5, 2024.2.6, 2026.3 (downloads IDEs, ~5 min)
 ./gradlew runIde                 # sandbox IDE with the plugin installed
 ```
 
@@ -50,7 +50,7 @@ All code is under `src/main/java/com/dush/psannotator/`. Features are written on
 - **Kotlin `@field:`:** `io.protostuff.Tag` declares no `@Target`, so on a Kotlin constructor `val`/`var` a plain `@Tag` lands on the constructor parameter, where Protostuff doesn't look. Generated Kotlin tags must be `@field:Tag(n)`, and the inspection flags the other form.
 - **Kotlin uses PSI only, no type analysis:** this keeps it working in both K1 and K2 mode. The `<supportsKotlinPluginMode>` declaration must stay in the main `plugin.xml`. In the optional descriptor it is ignored, and the plugin gets disabled in K2 mode.
 - **Renumbering:** replace only the value expression, never the whole annotation, so names, `@field:` targets and layout are kept.
-- **Platform icons:** icons named in `plugin.xml` (`AllIcons.*`) are resolved at runtime and not checked by the verifier. Confirm a name exists in both the oldest and newest supported IDEs before using it.
+- **Platform icons:** icons named in `plugin.xml` (`AllIcons.*`) are resolved at runtime and not checked by the verifier. Confirm a name exists in both the oldest (2022.2) and newest supported IDEs before using it.
 
 ## Tests
 

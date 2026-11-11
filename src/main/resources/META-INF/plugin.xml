@@ -23,6 +23,10 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <p>1.2.2</p>
+        <ul>
+            <li>Supports IntelliJ IDEA 2022.2 and later.</li>
+        </ul>
         <p>1.2.1</p>
         <ul>
             <li>Plugin icon, and icons on the Protostuff menu actions.</li>

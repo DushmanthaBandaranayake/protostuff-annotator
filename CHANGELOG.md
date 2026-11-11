@@ -3,6 +3,11 @@
 All notable changes to the Protostuff Tag Annotator plugin. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-11-11
+
+### Changed
+- Supports IntelliJ IDEA 2022.2 and later (since-build 222), down from 2024.2. The plugin is now compiled to Java 17 bytecode, which 2022.2-2024.1 need. IntelliJ 2022.1 isn't supported: it runs on Java 11 and lacks the `ActionUpdateThread` API that newer IDEs require actions to use.
+
 ## [1.2.1] - 2026-11-07
 
 ### Added
@@ -73,7 +78,8 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 ### Added
 - First release. **Code → Generate → Generate Protostuff Tags** adds `@Tag` to every field of the class at the caret, from a chosen starting number, with options to include static and transient fields.
 
-[1.2.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/fa7c14a...master
+[1.2.2]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/6283d61...master
+[1.2.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/fa7c14a...6283d61
 [1.2.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/9b8ebe5...fa7c14a
 [1.1.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/e3220b3...9b8ebe5
 [1.1.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/7da346e...e3220b3

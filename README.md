@@ -50,13 +50,13 @@ Works on constructor `val`/`var` parameters and body properties that have a back
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 ## Building
-Requires JDK 21. Supports IntelliJ IDEA 2024.2 and later.
+Requires JDK 21 to build. Supports IntelliJ IDEA 2022.2 and later.
 
 ```bash
 ./gradlew buildPlugin   # plugin zip in build/distributions/
 ./gradlew test          # run the tests
 ./gradlew runIde        # start a sandbox IDE with the plugin installed
-./gradlew verifyPlugin  # check API compatibility with IDEA 2024.2, 2026.2 and 2026.3
+./gradlew verifyPlugin  # check API compatibility with IDEA 2022.2, 2024.2 and 2026.3
 ```
 
 The code is split into a language-neutral model (`model/`) with Java (`java/`) and Kotlin (`kotlin/`) implementations. The Kotlin part is loaded only when the Kotlin plugin is installed.
