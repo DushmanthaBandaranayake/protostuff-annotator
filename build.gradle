@@ -22,7 +22,8 @@ tasks.named('jar') {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 21
+    // Java 17 bytecode: IntelliJ 2022.2-2024.1 run on Java 17. (Compiled with JDK 21 against the 2024.2 platform.)
+    options.release = 17
     options.encoding = 'UTF-8'
 }
 
@@ -52,8 +53,8 @@ intellijPlatform {
     // ./gradlew verifyPlugin checks API compatibility with the oldest supported and current IDEs.
     pluginVerification {
         ides {
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, '2022.2.5') // oldest supported (since-build 222)
             ide(IntelliJPlatformType.IntellijIdeaCommunity, providers.gradleProperty('platformVersion').get())
-            ide(IntelliJPlatformType.IntellijIdea, '2026.2.2') // the version the Marketplace reported on
             ide(IntelliJPlatformType.IntellijIdea, '2026.3')
         }
     }
