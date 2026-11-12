@@ -1,6 +1,7 @@
 package com.dush.psannotator.actions;
 
 import com.dush.psannotator.model.TagClass;
+import com.dush.psannotator.model.TagHierarchy;
 import com.dush.psannotator.model.TagOperations;
 import com.dush.psannotator.model.TagPlanner;
 import com.dush.psannotator.ui.BulkGenerateDialog;
@@ -23,20 +24,38 @@ public final class GenerateTagsAction extends TagActionBase
 
 	@Override protected void runOnClass( @NotNull Project project, @NotNull TagClass cls )
 	{
-		if ( !GenerateDialog.hasFieldsToTag( cls ) )
+		TagHierarchy hierarchy = TagTargets.hierarchy( project, cls );
+		if ( hierarchy == null )
+		{
+			return; // cancelled
+		}
+		boolean relatedNeedTags = hierarchy.others( TagHierarchy.Scope.WHOLE_HIERARCHY ).stream()
+				.anyMatch( GenerateDialog::hasFieldsToTag );
+		if ( !GenerateDialog.hasFieldsToTag( cls ) && !relatedNeedTags )
 		{
 			Messages.showInfoMessage( project, "Every field in " + cls.getName() + " that can be tagged already has a @Tag.",
 					title() );
 			return;
 		}
-		GenerateDialog dialog = new GenerateDialog( cls );
+		GenerateDialog dialog = new GenerateDialog( hierarchy );
 		if ( !dialog.showAndGet() )
 		{
 			return;
 		}
 		Set<PsiElement> selected = dialog.getSelected();
-		write( project, List.of( cls ), () -> TagOperations.generate( cls, dialog.getStart(), dialog.isIncludeTransient(),
-				f -> selected.contains( f.getDeclaration() ) ) );
+		TagHierarchy.Scope scope = dialog.getScope();
+		int[] result = new int[2];
+		write( project, hierarchy.classes( scope ), () -> {
+			int[] counts = TagOperations.generateInScope( hierarchy, scope, dialog.getStart(), dialog.isIncludeTransient(),
+					f -> selected.contains( f.getDeclaration() ) );
+			System.arraycopy( counts, 0, result, 0, 2 );
+			return counts[0];
+		} );
+		if ( scope != TagHierarchy.Scope.THIS_CLASS )
+		{
+			Messages.showInfoMessage( project, "Tagged " + TagTargets.plural( result[0], "field" ) + " in "
+					+ TagTargets.plural( result[1], "class" ) + ".", title() );
+		}
 	}
 
 	@Override protected void runOnClasses( @NotNull Project project, @NotNull List<TagClass> classes )

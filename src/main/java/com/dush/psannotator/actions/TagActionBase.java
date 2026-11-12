@@ -19,9 +19,26 @@ abstract class TagActionBase extends AnAction
 {
 	@Override public final void update( @NotNull AnActionEvent e )
 	{
-		boolean inEditor = e.getData( CommonDataKeys.EDITOR ) != null;
-		boolean enabled = inEditor ? TagTargets.classAtCaret( e ) != null : TagTargets.selectionMayContainClasses( e );
+		boolean enabled;
+		if ( e.getData( CommonDataKeys.EDITOR ) != null )
+		{
+			TagClass cls = TagTargets.classAtCaret( e );
+			enabled = cls != null && isApplicableTo( cls );
+		}
+		else
+		{
+			enabled = TagTargets.selectionMayContainClasses( e );
+		}
 		e.getPresentation().setEnabledAndVisible( enabled );
+	}
+
+	/**
+	 * Whether to offer the action for the class at the caret (editor right-click menu, Generate menu, Code menu).
+	 * Project view selections aren't checked up front; the action reports when there is nothing to do.
+	 */
+	protected boolean isApplicableTo( @NotNull TagClass cls )
+	{
+		return true;
 	}
 
 	@Override public final @NotNull ActionUpdateThread getActionUpdateThread()

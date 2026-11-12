@@ -28,13 +28,14 @@ All code is under `src/main/java/com/dush/psannotator/`. Features are written on
   - `TagClass` and `TagField` describe a class and its fields.
   - `TagModelProvider` is an extension point (`com.dush.psannotator.tagModelProvider`) that builds those models from PSI. `TagModels` is the entry point that asks every provider.
   - `TagPlanner` works out tag numbers without editing anything. `TagOperations` applies the edits and must run inside a write command.
+  - `TagHierarchy` is a class plus its editable superclasses and its project subclasses (via `ClassInheritorsSearch` on `TagClass.getPsiClass()`, which is a light class for Kotlin). Its `Scope` drives the Generate and Remove dialogs' "Classes" choice. Build it inside a read action with indexes ready; the actions do it under a progress dialog (`TagTargets.hierarchy`). `TagOperations.generateInScope`/`removeInScope` hold the multi-class loops so tests and actions share them.
 - **`java/` and `kotlin/`** hold the two providers.
   - The Kotlin provider and Kotlin-only registrations live in `META-INF/psannotator-kotlin.xml`, an optional `<depends>` on `org.jetbrains.kotlin`. Classes in `kotlin/` must never be referenced from the rest of the code, or the plugin breaks in IDEs without Kotlin.
   - The Kotlin provider is registered `order="first"` because Kotlin light classes are also `PsiClass`es. The Java provider also rejects non-Java languages.
 - **Features**, all of which go through the model:
   - `inspection/`: `TagProblems` is the pure check logic; `ProtostuffTagInspection` and `TagFixes` are the IntelliJ inspection and its quick fixes.
   - `intention/AddTagIntention`: Alt+Enter on a single field.
-  - `actions/`: Generate, Renumber and Remove. Each works on the class at the caret or, via `TagTargets`, on a Project view selection.
+  - `actions/`: Generate, Renumber and Remove. Each works on the class at the caret or, via `TagTargets`, on a Project view selection. They're registered in the Generate (Alt+Insert) group and in the `ProtostuffMenu` group on the editor, Project view and Code menus. `TagActionBase.isApplicableTo` decides per action whether it shows for the class at the caret.
   - `ui/`: the dialogs. `TagSettings` holds the remembered dialog choices.
 - **Per-language registrations:** IntelliJ registers inspections and intentions per language, so Kotlin needs its own trivial subclasses (`ProtostuffTagKotlinInspection`, `AddTagKotlinIntention`). Each one needs its own description folder under `src/main/resources/inspectionDescriptions/` or `intentionDescriptions/`.
 

@@ -1,5 +1,6 @@
 package com.dush.psannotator.model;
 
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,12 @@ public interface TagClass
 
 	/** The superclass, or {@code null} for none or {@code java.lang.Object}. */
 	@Nullable TagClass getSuperClass();
+
+	/**
+	 * The class as a {@code PsiClass} (a light class for Kotlin), used to search for subclasses. {@code null} if
+	 * there isn't one.
+	 */
+	@Nullable PsiClass getPsiClass();
 
 	/** {@code true} if the class is in project source and can be edited. */
 	boolean isWritable();

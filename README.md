@@ -1,7 +1,7 @@
 # <img src="src/main/resources/META-INF/pluginIcon.svg" width="40" height="40" align="top" alt=""> Protostuff `@Tag` annotator
 IntelliJ IDEA plugin that adds and checks [Protostuff](https://protostuff.github.io/docs/protostuff-runtime/) `@Tag` annotations in Java and Kotlin classes.
 
-![Demo: generating tags with a field preview, fixing inspection warnings with Alt+Enter, and tagging a whole package from the Project view](docs/images/demo.gif)
+![Demo: generating tags with a field preview, fixing inspection warnings with Alt+Enter, generating and removing tags across a class hierarchy, and tagging a whole package from the Project view](docs/images/demo.gif)
 
 ## Features
 
@@ -10,6 +10,16 @@ Put the caret inside a class, then **Code → Generate** (Alt+Insert, Cmd+N on m
 The dialog lists the untagged fields with the number each will get. Untick fields to leave them out, change the starting number, or include transient fields. The numbers update as you go.
 
 When the class already has tags, the starting number defaults to one more than the highest, so existing numbers stay put.
+
+**Classes** chooses how far it reaches:
+- **This class only.**
+- **This class and its subclasses:** every class below it, at any depth.
+- **This class and its superclasses.**
+- **This class, its superclasses and subclasses.**
+
+Each option shows how many other classes it adds, and is disabled when there are none. Only classes in your project are touched, superclasses are tagged first, and all classes use the same starting number, so numbers never clash along an inheritance chain. Sibling classes (other subclasses of a superclass) aren't included. The choice is remembered.
+
+The Generate, Renumber and Remove actions are in **Code → Generate** (Alt+Insert), on the editor's right-click menu under **Protostuff**, and in the Project view's right-click menu. In the editor, Renumber and Remove only appear when the class has tags.
 
 ### Tag a single field
 Alt+Enter on a field → **Add @Tag(n)**. It uses one more than the highest number in the class and its superclasses. Gaps aren't filled, because a gap is often a removed field whose number shouldn't be reused.
@@ -29,7 +39,7 @@ Right-click files, packages or folders in the Project view → **Protostuff** �
 
 ### Renumber and remove
 **Code → Protostuff → Renumber Protostuff Tags…** renumbers the tagged fields in declaration order. Data serialized with the old numbers can't be read correctly afterwards, and the dialog says so.
-**Remove Protostuff Tags…** removes every `@Tag`, along with the import if it's no longer used.
+**Remove Protostuff Tags…** removes every `@Tag`, along with the import if it's no longer used. From the editor, you choose **only this class** (the default) or **this class, its superclasses and subclasses**.
 
 ### Rules used everywhere
 - Writes `@Tag(n)` and adds `import io.protostuff.Tag` if it isn't already imported. The fully qualified `@io.protostuff.Tag` is used only when `Tag` already means a different class in that file.

@@ -76,6 +76,11 @@ final class JavaTagClass implements TagClass
 		return TagModels.forClass( superClass );
 	}
 
+	@Override public @Nullable PsiClass getPsiClass()
+	{
+		return psiClass;
+	}
+
 	@Override public boolean isWritable()
 	{
 		return psiClass.isPhysical() && psiClass.isWritable() && psiClass.getContainingFile() instanceof PsiJavaFile;
