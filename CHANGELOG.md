@@ -3,12 +3,15 @@
 All notable changes to the Protostuff Tag Annotator plugin. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.3.0] - 2026-11-12
 
 ### Added
 - The **Protostuff** submenu (Generate, Renumber, Remove) is on the editor's right-click menu, and Renumber and Remove are in the Alt+Insert Generate menu next to Generate. In the editor, Renumber and Remove only appear when the class has tags.
 - **Generate** can also tag a class's subclasses, its superclasses, or both. Superclasses are tagged first and every class uses the same starting number, so numbers stay consistent along the inheritance chain. The choice is remembered.
 - **Remove** from the editor can remove tags from this class only, or from this class, its superclasses and subclasses.
+
+### Changed
+- The demo GIF (README and plugin description) is re-recorded to show the new menus and the hierarchy options.
 
 ## [1.2.2] - 2026-11-11
 
@@ -85,7 +88,8 @@ All notable changes to the Protostuff Tag Annotator plugin. The format follows
 ### Added
 - First release. **Code → Generate → Generate Protostuff Tags** adds `@Tag` to every field of the class at the caret, from a chosen starting number, with options to include static and transient fields.
 
-[1.2.2]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/6283d61...master
+[1.3.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/92a2c2f...master
+[1.2.2]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/6283d61...92a2c2f
 [1.2.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/fa7c14a...6283d61
 [1.2.0]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/9b8ebe5...fa7c14a
 [1.1.1]: https://github.com/DushmanthaBandaranayake/protostuff-annotator/compare/e3220b3...9b8ebe5
