@@ -15,6 +15,12 @@ public final class RemoveTagsAction extends TagActionBase
 		return "Remove Protostuff Tags";
 	}
 
+	/** Only offered in the editor when the class already has a @Tag. */
+	@Override protected boolean isApplicableTo( @NotNull TagClass cls )
+	{
+		return TagOperations.hasAnyTag( cls );
+	}
+
 	@Override protected void runOnClass( @NotNull Project project, @NotNull TagClass cls )
 	{
 		run( project, List.of( cls ), cls.getName() );

@@ -104,12 +104,16 @@
                 class="com.dush.psannotator.actions.RenumberTagsAction"
                 icon="AllIcons.ObjectBrowser.Sorted"
                 text="Renumber Protostuff Tags…"
-                description="Renumber the @Tag annotations in declaration order"/>
+                description="Renumber the @Tag annotations in declaration order">
+            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="com.dush.psannotator.GenerateProtostuffTags"/>
+        </action>
         <action id="com.dush.psannotator.RemoveProtostuffTags"
                 class="com.dush.psannotator.actions.RemoveTagsAction"
                 icon="AllIcons.Actions.DeleteTag"
                 text="Remove Protostuff Tags…"
-                description="Remove all @Tag annotations"/>
+                description="Remove all @Tag annotations">
+            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="com.dush.psannotator.RenumberProtostuffTags"/>
+        </action>
         <group id="com.dush.psannotator.ProtostuffMenu" text="Protostuff" popup="true" compact="true"
                icon="/icons/protostuffTag.svg">
             <reference ref="com.dush.psannotator.GenerateProtostuffTags"/>
@@ -117,6 +121,7 @@
             <reference ref="com.dush.psannotator.RemoveProtostuffTags"/>
             <add-to-group group-id="CodeMenu" anchor="last"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>
     </actions>
 </idea-plugin>
