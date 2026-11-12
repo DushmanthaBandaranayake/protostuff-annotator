@@ -16,7 +16,7 @@ public class GenerateDialogTest extends TagTestCase
 		TagSettings.setIncludeTransient( false );
 		myFixture.configureByText( "A.java", "import io.protostuff.Tag;\nclass A { @Tag(4) int a; int b; transient int t; static int s; }" );
 		TagClass cls = classAtCaretOrFirst();
-		GenerateDialog dialog = new GenerateDialog( cls );
+		GenerateDialog dialog = new GenerateDialog( com.dush.psannotator.model.TagHierarchy.of( cls ) );
 		try
 		{
 			assertEquals( 5, dialog.getStart() );
@@ -39,7 +39,7 @@ public class GenerateDialogTest extends TagTestCase
 		try
 		{
 			myFixture.configureByText( "A.java", "class A { int b; transient int t; }" );
-			GenerateDialog dialog = new GenerateDialog( classAtCaretOrFirst() );
+			GenerateDialog dialog = new GenerateDialog( com.dush.psannotator.model.TagHierarchy.of( classAtCaretOrFirst() ) );
 			try
 			{
 				assertEquals( 1, dialog.getStart() );

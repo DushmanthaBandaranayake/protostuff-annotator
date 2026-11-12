@@ -1,7 +1,9 @@
 package com.dush.psannotator.actions;
 
 import com.dush.psannotator.model.TagClass;
+import com.dush.psannotator.model.TagHierarchy;
 import com.dush.psannotator.model.TagOperations;
+import com.dush.psannotator.ui.RemoveDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +25,28 @@ public final class RemoveTagsAction extends TagActionBase
 
 	@Override protected void runOnClass( @NotNull Project project, @NotNull TagClass cls )
 	{
-		run( project, List.of( cls ), cls.getName() );
+		TagHierarchy hierarchy = TagTargets.hierarchy( project, cls );
+		if ( hierarchy == null )
+		{
+			return; // cancelled
+		}
+		RemoveDialog dialog = new RemoveDialog( hierarchy );
+		if ( !dialog.showAndGet() )
+		{
+			return;
+		}
+		TagHierarchy.Scope scope = dialog.getScope();
+		int[] result = new int[2];
+		write( project, hierarchy.classes( scope ), () -> {
+			int[] counts = TagOperations.removeInScope( hierarchy, scope );
+			System.arraycopy( counts, 0, result, 0, 2 );
+			return counts[0];
+		} );
+		if ( scope != TagHierarchy.Scope.THIS_CLASS )
+		{
+			Messages.showInfoMessage( project, "Removed " + TagTargets.plural( result[0], "tag" ) + " from "
+					+ TagTargets.plural( result[1], "class" ) + ".", title() );
+		}
 	}
 
 	@Override protected void runOnClasses( @NotNull Project project, @NotNull List<TagClass> classes )
@@ -46,7 +69,12 @@ public final class RemoveTagsAction extends TagActionBase
 		{
 			return;
 		}
-		write( project, classes, () -> {
+		removeAll( project, classes );
+	}
+
+	private int removeAll( Project project, List<TagClass> classes )
+	{
+		return write( project, classes, () -> {
 			int total = 0;
 			for ( TagClass cls : classes )
 			{

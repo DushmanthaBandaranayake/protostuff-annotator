@@ -3,6 +3,7 @@ package com.dush.psannotator.ui;
 import com.dush.psannotator.TagSettings;
 import com.dush.psannotator.model.TagClass;
 import com.dush.psannotator.model.TagField;
+import com.dush.psannotator.model.TagHierarchy;
 import com.dush.psannotator.model.TagPlanner;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -20,15 +21,20 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Generate for one class: pick fields and see the numbers they will get before pressing OK. */
 public final class GenerateDialog extends DialogWrapper
 {
 	private final TagClass target;
+	private final TagHierarchy hierarchy;
+	private final ScopeChooser scope;
+	private final JBLabel othersLabel = new JBLabel();
 	private final List<TagField> fields;
 	private final boolean[] checked;
 	private final StartNumberField startField;
@@ -36,10 +42,13 @@ public final class GenerateDialog extends DialogWrapper
 	private final FieldTableModel tableModel = new FieldTableModel();
 	private Map<TagField, Integer> plan = Map.of();
 
-	public GenerateDialog( @NotNull TagClass target )
+	public GenerateDialog( @NotNull TagHierarchy hierarchy )
 	{
-		super( target.getDeclaration().getProject() );
-		this.target = target;
+		super( hierarchy.getTarget().getDeclaration().getProject() );
+		this.hierarchy = hierarchy;
+		this.target = hierarchy.getTarget();
+		this.scope = new ScopeChooser( hierarchy, List.of( TagHierarchy.Scope.values() ), TagSettings.getGenerateScope(),
+				GenerateDialog::hasFieldsToTag );
 		this.fields = TagPlanner.untaggedFields( target, true );
 		this.checked = new boolean[fields.size()];
 		boolean hasTags = !TagPlanner.usedTags( TagPlanner.hierarchyTopDown( target ) ).isEmpty();
@@ -59,10 +68,12 @@ public final class GenerateDialog extends DialogWrapper
 			applyTransientChoice();
 			replan();
 		} );
+		scope.onChange( this::replan );
 		replan();
 		init();
 	}
 
+	/** Untagged fields, transient ones included (they're unticked by default). */
 	public static boolean hasFieldsToTag( @NotNull TagClass target )
 	{
 		return !TagPlanner.untaggedFields( target, true ).isEmpty();
@@ -85,8 +96,10 @@ public final class GenerateDialog extends DialogWrapper
 		return FormBuilder.createFormBuilder()
 				.addLabeledComponent( "Starting tag number:", startField )
 				.addComponent( transientBox )
-				.addComponent( new JBLabel( "Numbers already used in this class or its superclasses are skipped." ) )
+				.addLabeledComponent( "Classes:", scope.getPanel() )
+				.addComponent( new JBLabel( "Numbers already used in a class or its superclasses are skipped." ) )
 				.addComponentFillVertically( scroll, JBUI.scale( 4 ) )
+				.addComponent( othersLabel )
 				.getPanel();
 	}
 
@@ -102,13 +115,45 @@ public final class GenerateDialog extends DialogWrapper
 		{
 			return invalid;
 		}
-		return plan.isEmpty() ? new ValidationInfo( "Select at least one field" ) : null;
+		if ( plan.isEmpty() && otherClassesToTag().isEmpty() )
+		{
+			return new ValidationInfo( "Select at least one field" );
+		}
+		return null;
 	}
 
 	@Override protected void doOKAction()
 	{
 		TagSettings.setIncludeTransient( transientBox.isSelected() );
+		TagSettings.setGenerateScope( scope.getSelected() );
 		super.doOKAction();
+	}
+
+	/** Which classes to tag besides this one. */
+	public @NotNull TagHierarchy.Scope getScope()
+	{
+		return scope.getSelected();
+	}
+
+	/** For tests. */
+	public void selectScope( @NotNull TagHierarchy.Scope value )
+	{
+		scope.select( value );
+		replan();
+	}
+
+	/** Classes in the chosen scope, other than this one, that have fields to tag. */
+	public @NotNull List<TagClass> otherClassesToTag()
+	{
+		List<TagClass> result = new ArrayList<>();
+		for ( TagClass cls : hierarchy.others( scope.getSelected() ) )
+		{
+			if ( !TagPlanner.untaggedFields( cls, isIncludeTransient() ).isEmpty() )
+			{
+				result.add( cls );
+			}
+		}
+		return result;
 	}
 
 	public int getStart()
@@ -186,6 +231,9 @@ public final class GenerateDialog extends DialogWrapper
 					f -> selected.contains( f.getDeclaration() ) );
 		}
 		tableModel.fireTableDataChanged();
+		List<TagClass> others = otherClassesToTag();
+		othersLabel.setText( others.isEmpty() ? " "
+				: "Also tags every untagged field in: " + others.stream().map( TagClass::getName ).collect( Collectors.joining( ", " ) ) );
 	}
 
 	private final class FieldTableModel extends AbstractTableModel

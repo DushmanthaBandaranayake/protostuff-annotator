@@ -3,6 +3,13 @@
 All notable changes to the Protostuff Tag Annotator plugin. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- The **Protostuff** submenu (Generate, Renumber, Remove) is on the editor's right-click menu, and Renumber and Remove are in the Alt+Insert Generate menu next to Generate. In the editor, Renumber and Remove only appear when the class has tags.
+- **Generate** can also tag a class's subclasses, its superclasses, or both. Superclasses are tagged first and every class uses the same starting number, so numbers stay consistent along the inheritance chain. The choice is remembered.
+- **Remove** from the editor can remove tags from this class only, or from this class, its superclasses and subclasses.
+
 ## [1.2.2] - 2026-11-11
 
 ### Changed

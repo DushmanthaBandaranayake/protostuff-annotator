@@ -15,7 +15,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.asJava.classes.KtLightClass;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.name.FqName;
@@ -127,13 +126,18 @@ final class KotlinTagClass implements TagClass
 
 	@Override public @Nullable TagClass getSuperClass()
 	{
-		KtLightClass light = LightClassUtilsKt.toLightClass( ktClass );
+		PsiClass light = getPsiClass();
 		PsiClass superClass = light != null ? light.getSuperClass() : null;
 		if ( superClass == null || Object.class.getName().equals( superClass.getQualifiedName() ) )
 		{
 			return null;
 		}
 		return TagModels.forClass( superClass );
+	}
+
+	@Override public @Nullable PsiClass getPsiClass()
+	{
+		return LightClassUtilsKt.toLightClass( ktClass );
 	}
 
 	@Override public boolean isWritable()

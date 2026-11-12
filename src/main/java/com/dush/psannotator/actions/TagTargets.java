@@ -1,6 +1,7 @@
 package com.dush.psannotator.actions;
 
 import com.dush.psannotator.model.TagClass;
+import com.dush.psannotator.model.TagHierarchy;
 import com.dush.psannotator.model.TagModels;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -117,6 +118,18 @@ final class TagTargets
 			}
 		}, "Finding Classes", true, project );
 		return finished ? result : List.of();
+	}
+
+	/** The class's superclasses and subclasses in the project, found under a cancellable progress dialog. */
+	@Nullable
+	static TagHierarchy hierarchy( @NotNull Project project, @NotNull TagClass cls )
+	{
+		TagHierarchy[] result = { null };
+		boolean finished = ProgressManager.getInstance().runProcessWithProgressSynchronously(
+				() -> {
+					result[0] = readAction( () -> TagHierarchy.of( cls ) );
+				}, "Finding Subclasses", true, project );
+		return finished ? result[0] : null;
 	}
 
 	private static <T> T readAction( Computable<T> computation )

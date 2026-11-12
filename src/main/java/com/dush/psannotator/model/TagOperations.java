@@ -25,6 +25,45 @@ public final class TagOperations
 		return plan.size();
 	}
 
+	/**
+	 * Generate for the target (only its {@code selected} fields; {@code null} means all) and every untagged field of
+	 * the other classes in {@code scope}, superclasses first, all from the same start number.
+	 *
+	 * @return {@code [fields annotated, classes changed]}
+	 */
+	public static int[] generateInScope( @NotNull TagHierarchy hierarchy, @NotNull TagHierarchy.Scope scope, int start,
+			boolean includeTransient, @Nullable Predicate<TagField> selected )
+	{
+		int fields = 0;
+		int classes = 0;
+		for ( TagClass cls : hierarchy.classes( scope ) )
+		{
+			boolean isTarget = cls.sameAs( hierarchy.getTarget() );
+			int added = generate( cls, start, includeTransient, isTarget ? selected : null );
+			fields += added;
+			classes += added > 0 ? 1 : 0;
+		}
+		return new int[] { fields, classes };
+	}
+
+	/**
+	 * Removes every {@code @Tag} from the classes in {@code scope}.
+	 *
+	 * @return {@code [tags removed, classes changed]}
+	 */
+	public static int[] removeInScope( @NotNull TagHierarchy hierarchy, @NotNull TagHierarchy.Scope scope )
+	{
+		int tags = 0;
+		int classes = 0;
+		for ( TagClass cls : hierarchy.classes( scope ) )
+		{
+			int removed = removeAll( cls );
+			tags += removed;
+			classes += removed > 0 ? 1 : 0;
+		}
+		return new int[] { tags, classes };
+	}
+
 	/** Tags every untagged serialized field after the current highest number. Used by the inspection's fix. */
 	public static int tagRemaining( @NotNull TagClass target )
 	{
